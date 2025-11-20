@@ -43,7 +43,78 @@ function App() {
         />
       </div>
 
-      <div style={{ marginBottom: "40px" }} id="tag-dropdown-root">
+      <div style={{ marginBottom: "40px" }}>
+        <h2>TagFilter with Custom Trigger</h2>
+        <div style={{ width: "800px" }}></div>
+        <TagFilter
+          tags={sampleTags}
+          onChange={(tag) => {
+            setSelectedFilterTag(tag);
+            console.log("Selected tag (custom):", tag);
+          }}
+          matchTriggerWidth
+          onManageTags={() => {
+            console.log("Manage tags clicked");
+            alert("Manage tags clicked!");
+          }}
+        >
+          <button
+            style={{
+              display: "inline-flex",
+              height: "28px",
+              padding: "2px 18px",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "8px",
+              flexShrink: "0",
+              borderRadius: "100px",
+              background: "#0D4CBE",
+            }}
+          >
+            {selectedFilterTag ? (
+              <span
+                style={{
+                  color: "#ffff",
+                  background: selectedFilterTag.color
+                    ? selectedFilterTag.color
+                    : "#0D4CBE",
+                }}
+              >
+                {selectedFilterTag.name}
+              </span>
+            ) : (
+              <div
+                style={{
+                  color: "#ffff",
+                  background: "#0D4CBE",
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                >
+                  <path
+                    d="M5.14286 6.85714H0V5.14286H5.14286V0H6.85714V5.14286H12V6.85714H6.85714V12H5.14286V6.85714Z"
+                    fill="#E8EAED"
+                  />
+                </svg>
+                <span
+                  style={{
+                    color: "#ffff",
+                  }}
+                >
+                  Add Tag
+                </span>
+              </div>
+            )}
+          </button>
+        </TagFilter>
+      </div>
+
+      <div style={{ marginBottom: "40px" }}>
         <h2>TagSelector Component</h2>
         <p>Selected: {selectedTags.map((t) => t.name).join(", ") || "None"}</p>
         <button
