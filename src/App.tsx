@@ -3,16 +3,14 @@ import { TagFilter, TagSelector } from "./components";
 import type { Tag } from "./components/TagFilter/TagFilter";
 
 const sampleTags: Tag[] = [
-  { id: "1", name: "Tag Name", color: "#ff9aa2" },
-  { id: "2", name: "Tag Name", color: "#ffb347" },
-  { id: "3", name: "Very long Tag Name", color: "#6b5b95" },
-  { id: "4", name: "Short Tag Name", color: "#ffdab9" },
-  { id: "5", name: "Tag Name", color: "#a8d5ba" },
-  { id: "6", name: "Another Tag", color: "#87ceeb" },
-  { id: "7", name: "Design", color: "#dda0dd" },
-  { id: "8", name: "Development", color: "#98fb98" },
-  { id: "9", name: "Marketing", color: "#f0e68c" },
-  { id: "10", name: "Sales", color: "#ff6b6b" },
+  { id: "1", name: "Tag A", color: "#ff0701" },
+  { id: "2", name: "Tag B", color: "#fe8100" },
+  { id: "3", name: "Long Tag C", color: "#fcbc00" },
+  { id: "4", name: "Tag D", color: "#03c400" },
+  { id: "5", name: "Tag E", color: "#006ffb" },
+  { id: "6", name: "Tag F", color: "#a941cd" },
+  { id: "7", name: "Tag G", color: "#828186" },
+  { id: "8", name: "Tag This A Clinic", color: "#c5eada" },
 ];
 
 function App() {
@@ -45,7 +43,7 @@ function App() {
         />
       </div>
 
-      <div style={{ marginBottom: "40px" }}>
+      <div style={{ marginBottom: "40px" }} id="tag-dropdown-root">
         <h2>TagSelector Component</h2>
         <p>Selected: {selectedTags.map((t) => t.name).join(", ") || "None"}</p>
         <button
@@ -68,7 +66,6 @@ function App() {
           availableTags={sampleTags}
           selectedTags={selectedTags}
           title="Add tags to 5 invoices"
-          description="Description as to what this means"
           isOpen={isSelectorOpen}
           onClose={() => setIsSelectorOpen(false)}
           onTagsChange={(tags) => {
