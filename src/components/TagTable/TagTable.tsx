@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./TagTable.module.css";
 import { TAG_COLORS } from "../../types/color";
+import { createPortal } from "react-dom";
 
 interface Tag {
   id: string;
@@ -19,33 +20,66 @@ interface ColorPickerProps {
   onColorSelect: (color: string) => void;
   selectedColor: string;
   onClose: () => void;
+  anchorEl: HTMLElement | null;
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({
   onColorSelect,
   selectedColor,
   onClose,
+  anchorEl,
 }) => {
   const pickerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (anchorEl) {
+      const rect = anchorEl.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+      setPosition({
+        top: rect.bottom + scrollTop + 8, // 8px gap
+        left: rect.left + scrollLeft,
+      });
+    }
+  }, [anchorEl]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node)
+        !pickerRef.current.contains(event.target as Node) &&
+        anchorEl &&
+        !anchorEl.contains(event.target as Node)
       ) {
         onClose();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", onClose, true); // Close on scroll
+    window.addEventListener("resize", onClose); // Close on resize
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", onClose, true);
+      window.removeEventListener("resize", onClose);
     };
-  }, [onClose]);
+  }, [onClose, anchorEl]);
 
-  return (
-    <div className={styles.colorPicker} ref={pickerRef}>
+  if (!anchorEl) return null;
+
+  return createPortal(
+    <div
+      className={styles.colorPicker}
+      ref={pickerRef}
+      style={{
+        top: position.top,
+        left: position.left,
+        position: "absolute", // Ensure it's positioned relative to document
+      }}
+    >
       {TAG_COLORS.map((color) => (
         <button
           key={color}
@@ -57,11 +91,16 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           }}
         />
       ))}
-    </div>
+    </div>,
+    document.body
   );
 };
 
-const EmptyState: React.FC = () => (
+interface EmptyStateProps {
+  description: string;
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ description }) => (
   <div className={styles.emptyState}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -115,12 +154,47 @@ const EmptyState: React.FC = () => (
         fill="black"
       />
     </svg>
-    <p className={styles.emptyText}>
-      Looks like your admin hasn't added any tags yet, please talk to them to
-      create new tags
-    </p>
+    <p className={styles.emptyText}>{description}</p>
   </div>
 );
+
+interface TruncatedTextWithTooltipProps {
+  text: string;
+  className?: string;
+}
+
+const TruncatedTextWithTooltip: React.FC<TruncatedTextWithTooltipProps> = ({
+  text,
+  className,
+}) => {
+  const [isTruncated, setIsTruncated] = useState(false);
+  const textRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      if (textRef.current) {
+        const { scrollWidth, clientWidth } = textRef.current;
+        setIsTruncated(scrollWidth > clientWidth);
+      }
+    };
+
+    checkTruncation();
+    window.addEventListener("resize", checkTruncation);
+    return () => window.removeEventListener("resize", checkTruncation);
+  }, [text]);
+
+  return (
+    <div className={styles.tooltipContainer}>
+      <span
+        ref={textRef}
+        className={`${styles.truncatedText} ${className || ""}`}
+      >
+        {text}
+      </span>
+      {isTruncated && <div className={styles.tooltip}>{text}</div>}
+    </div>
+  );
+};
 
 interface TagTableProps {
   tags: TagData[];
@@ -146,6 +220,8 @@ export const TagTable: React.FC<TagTableProps> = ({
   const [showEditColorPicker, setShowEditColorPicker] = useState<string | null>(
     null
   );
+  const [colorPickerAnchor, setColorPickerAnchor] =
+    useState<HTMLElement | null>(null);
 
   // Validation state
   const [isNewTagNameInvalid, setIsNewTagNameInvalid] = useState(false);
@@ -161,7 +237,9 @@ export const TagTable: React.FC<TagTableProps> = ({
     setIsAddingTag(true);
     setEditingTagId(null);
     setShowEditColorPicker(null);
+    setColorPickerAnchor(null);
     setIsNewTagNameInvalid(false);
+    setSearchQuery("");
   };
 
   const handleAddTag = () => {
@@ -191,6 +269,7 @@ export const TagTable: React.FC<TagTableProps> = ({
   const handleEditTag = (tag: TagData) => {
     setIsAddingTag(false);
     setShowColorPicker(false);
+    setColorPickerAnchor(null);
     setEditingTagId(tag.id);
     setEditTagName(tag.tag.name);
     setEditTagDescription(tag.description);
@@ -218,6 +297,7 @@ export const TagTable: React.FC<TagTableProps> = ({
       );
       setEditingTagId(null);
       setShowEditColorPicker(null);
+      setColorPickerAnchor(null);
       setIsEditTagNameInvalid(false);
     }
   };
@@ -225,6 +305,7 @@ export const TagTable: React.FC<TagTableProps> = ({
   const handleCancelEdit = () => {
     setEditingTagId(null);
     setShowEditColorPicker(null);
+    setColorPickerAnchor(null);
     setIsEditTagNameInvalid(false);
   };
 
@@ -285,16 +366,16 @@ export const TagTable: React.FC<TagTableProps> = ({
       </div>
 
       {localTags.length === 0 && !isAddingTag ? (
-        <EmptyState />
+        <EmptyState description="Looks like your admin hasn't added any tags yet, please talk to them to create new tags" />
       ) : (
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>TAG</th>
-                <th>DESCRIPTION</th>
-                <th>ENTITIES TAGGED</th>
-                <th>ACTIONS</th>
+                <th className={styles.colTag}>TAG</th>
+                <th className={styles.colDescription}>DESCRIPTION</th>
+                <th className={styles.colEntities}>ENTITIES TAGGED</th>
+                <th className={styles.colActions}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -318,7 +399,10 @@ export const TagTable: React.FC<TagTableProps> = ({
                       />
                       <div className={styles.colorPickerWrapper}>
                         <button
-                          onClick={() => setShowColorPicker(!showColorPicker)}
+                          onClick={(e) => {
+                            setShowColorPicker(!showColorPicker);
+                            setColorPickerAnchor(e.currentTarget);
+                          }}
                           className={styles.colorPreview}
                         >
                           <svg
@@ -340,9 +424,14 @@ export const TagTable: React.FC<TagTableProps> = ({
                             onColorSelect={(color) => {
                               setNewTagColor(color);
                               setShowColorPicker(false);
+                              setColorPickerAnchor(null);
                             }}
                             selectedColor={newTagColor}
-                            onClose={() => setShowColorPicker(false)}
+                            onClose={() => {
+                              setShowColorPicker(false);
+                              setColorPickerAnchor(null);
+                            }}
+                            anchorEl={colorPickerAnchor}
                           />
                         )}
                       </div>
@@ -401,11 +490,12 @@ export const TagTable: React.FC<TagTableProps> = ({
                           />
                           <div className={styles.colorPickerWrapper}>
                             <button
-                              onClick={() =>
+                              onClick={(e) => {
                                 setShowEditColorPicker(
                                   showEditColorPicker === tag.id ? null : tag.id
-                                )
-                              }
+                                );
+                                setColorPickerAnchor(e.currentTarget);
+                              }}
                               className={styles.colorPreview}
                             >
                               <svg
@@ -432,9 +522,14 @@ export const TagTable: React.FC<TagTableProps> = ({
                                 onColorSelect={(color) => {
                                   setEditTagColor(color);
                                   setShowEditColorPicker(null);
+                                  setColorPickerAnchor(null);
                                 }}
                                 selectedColor={editTagColor}
-                                onClose={() => setShowEditColorPicker(null)}
+                                onClose={() => {
+                                  setShowEditColorPicker(null);
+                                  setColorPickerAnchor(null);
+                                }}
+                                anchorEl={colorPickerAnchor}
                               />
                             )}
                           </div>
@@ -484,7 +579,7 @@ export const TagTable: React.FC<TagTableProps> = ({
                         </div>
                       </td>
                       <td className={styles.descriptionCell}>
-                        {tag.description}
+                        <TruncatedTextWithTooltip text={tag.description} />
                       </td>
                       <td className={styles.entitiesCell}>
                         {tag.entitiesTagged}
