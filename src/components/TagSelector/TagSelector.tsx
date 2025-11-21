@@ -205,11 +205,11 @@ export const TagSelector: React.FC<TagSelectorProps> = ({
 
                 <div className={styles.tagList}>
                   {filteredTags
-                    .sort((a, b) => {
-                      if (localSelected.some((t) => t.id === a.id)) return -1;
-                      if (localSelected.some((t) => t.id === b.id)) return 1;
-                      return 0;
-                    })
+                    // .sort((a, b) => {
+                    //   if (localSelected.some((t) => t.id === a.id)) return -1;
+                    //   if (localSelected.some((t) => t.id === b.id)) return 1;
+                    //   return 0;
+                    // })
                     .map((tag) => {
                       const isSelected = localSelected.some(
                         (t) => t.id === tag.id

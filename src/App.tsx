@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TagFilter, TagSelector } from "./components";
+import { TagFilter, TagSelector, TagTable } from "./components";
 import type { Tag } from "./components/TagFilter/TagFilter";
 
 const sampleTags: Tag[] = [
@@ -26,6 +26,18 @@ function App() {
       }}
     >
       <h1>Component Library Demo</h1>
+      <TagTable
+        tags={
+          // []
+          sampleTags.map((tag, idx) => ({
+            id: tag.id,
+            tag,
+            entitiesTagged: idx,
+            description: tag.name + " description",
+          }))
+        }
+        showAdminActions
+      />
 
       <div style={{ marginBottom: "40px" }}>
         <h2>TagFilter Component</h2>

@@ -9,3 +9,5 @@ export type {
   TagSelectorProps,
   Tag as TagSelectorTag,
 } from "./TagSelector/TagSelector";
+
+export { TagTable } from "./TagTable/TagTable";
