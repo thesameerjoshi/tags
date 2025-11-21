@@ -56,13 +56,15 @@
 
 .searchInput {
   padding: 8px 12px 8px 40px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 4px;
+  border: 0.5px solid #ccc;
+  background: #fafafa;
   font-size: 14px;
   color: #111827;
   outline: none;
   transition: all 0.2s ease;
   width: 256px;
+  height: 24px;
 }
 
 .searchInput:disabled {
@@ -81,20 +83,16 @@
 }
 
 .addNewButton {
-  padding: 8px 16px;
+  padding: 13px 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  border-radius: 6px;
+  border-radius: 2px;
   background: #0d4cbe;
   border: none;
   color: #fff;
   font-size: 14px;
-  font-weight: 600;
-}
-
-.addNewButton:hover {
-  background: #0a3a99;
+  font-weight: 500;
 }
 
 /* Table Structure */
@@ -141,10 +139,12 @@
 
 .colEntities {
   width: 15%;
+  text-align: center !important;
 }
 
 .colActions {
   width: 15%;
+  text-align: center !important;
 }
 
 .table tbody tr {
@@ -202,6 +202,7 @@
   font-weight: 400;
   line-height: 22px; /* 157.143% */
   text-transform: capitalize;
+  text-align: center !important;
 }
 
 /* Action Icons */
@@ -209,6 +210,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: center;
 }
 
 .editButton,
@@ -298,7 +300,7 @@
   border-radius: 4px;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
   width: 100%;
 }
 
@@ -312,6 +314,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: center;
 }
 
 .cancelButton,
@@ -385,7 +388,7 @@
 
 .tooltip {
   position: absolute;
-  bottom: 100%; /* Position above the text */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   background-color: #1f2937;
@@ -394,7 +397,7 @@
   border-radius: 6px;
   font-size: 12px;
   line-height: 1.4;
-  white-space: normal; /* Allow wrapping in tooltip */
+  white-space: normal;
   z-index: 100;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -402,7 +405,7 @@
   max-width: 300px;
   text-align: center;
   margin-bottom: 8px;
-  pointer-events: none; /* Prevent tooltip from interfering with mouse events */
+  pointer-events: none;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;

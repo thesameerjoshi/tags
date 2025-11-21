@@ -2,6 +2,64 @@ import { useState } from "react";
 import { TagFilter, TagSelector, TagTable } from "./components";
 import type { Tag } from "./components/TagFilter/TagFilter";
 
+interface TagData {
+  id: string;
+  tag: Tag;
+  entitiesTagged: number;
+  description: string;
+}
+
+const sampleTableTags: TagData[] = [
+  {
+    id: "101",
+    description: "This is a tag description",
+    entitiesTagged: 4,
+    tag: { id: "1", name: "Tag A", color: "#ff0701" },
+  },
+  {
+    id: "102",
+    description: "Used for categorizing urgent tasks",
+    entitiesTagged: 12,
+    tag: { id: "2", name: "Tag B", color: "#fe8100" },
+  },
+  {
+    id: "103",
+    description: "Applies to long-term tracked entities",
+    entitiesTagged: 7,
+    tag: { id: "3", name: "Long Tag C", color: "#fcbc00" },
+  },
+  {
+    id: "104",
+    description: "Indicates active status for items",
+    entitiesTagged: 19,
+    tag: { id: "4", name: "Tag D", color: "#03c400" },
+  },
+  {
+    id: "105",
+    description: "Related to archived entries",
+    entitiesTagged: 3,
+    tag: { id: "5", name: "Tag E", color: "#006ffb" },
+  },
+  {
+    id: "106",
+    description: "Special category for flagged items",
+    entitiesTagged: 8,
+    tag: { id: "6", name: "Tag F", color: "#a941cd" },
+  },
+  {
+    id: "107",
+    description: "General category with mixed use cases",
+    entitiesTagged: 14,
+    tag: { id: "7", name: "Tag G", color: "#828186" },
+  },
+  {
+    id: "108",
+    description: "Used for marking clinic-related data",
+    entitiesTagged: 6,
+    tag: { id: "8", name: "Tag This A Clinic", color: "#c5eada" },
+  },
+];
+
 const sampleTags: Tag[] = [
   { id: "1", name: "Tag A", color: "#ff0701" },
   { id: "2", name: "Tag B", color: "#fe8100" },
@@ -17,6 +75,15 @@ function App() {
   const [selectedFilterTag, setSelectedFilterTag] = useState<Tag | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const [tableTags, setTableTags] = useState<TagData[]>(sampleTableTags);
+
+  const mappedTags = tableTags.map((tag) => ({
+    id: tag.id,
+    name: tag.tag.name,
+    color: tag.tag.color,
+    description: tag.description,
+    entitiesTagged: tag.entitiesTagged,
+  }));
 
   return (
     <div
@@ -26,18 +93,25 @@ function App() {
       }}
     >
       <h1>Component Library Demo</h1>
+
       <TagTable
-        tags={
-          // []
-          sampleTags.map((tag, idx) => ({
-            id: tag.id,
-            tag,
-            entitiesTagged: idx,
-            description: tag.name + " description",
-          }))
-        }
+        tags={tableTags}
         showAdminActions
+        onTagsChange={(newTags) => {
+          setTableTags(newTags);
+        }}
       />
+
+      {mappedTags.map((t) => (
+        <div
+          key={t.id}
+          style={{ borderLeft: `4px solid ${t.color}`, padding: "8px" }}
+        >
+          <strong style={{ color: t.color }}>{t.name}</strong>
+          <p>{t.description}</p>
+          <span>Tagged entities: {t.entitiesTagged}</span>
+        </div>
+      ))}
 
       <div style={{ marginBottom: "40px" }}>
         <h2>TagFilter Component</h2>
